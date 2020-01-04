@@ -1,0 +1,32 @@
+{
+    "manifest_version": 2,
+
+    "name": "Only Good Domains",
+    "description": "Analyze connections to unwanted domains and create blocklists.",
+
+    "icons": {
+        "16": "icon.png"
+    },
+
+    "version": "0.0.0",
+
+    "permissions": [
+        "<all_urls>",
+        "webRequest",
+        "webRequestBlocking",
+        "storage",
+        "unlimitedStorage"
+    ],
+
+    "background": {
+        "scripts": [
+            "utils.js",
+            "background.js"
+        ]
+    },
+
+    "browser_action": {
+        "default_icon": "icon.png",
+        "default_popup": "popup/popup.html"
+    }
+}
