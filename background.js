@@ -42,7 +42,7 @@ function isDomainBlocked(domain) {
 		return true;
 	} else if (domain.includes('.')) {
 		// check next level
-		const nextLevel = domain.substring(domain.indexOf('.'));
+		const nextLevel = domain.substring(domain.indexOf('.') + 1);
 		return isDomainBlocked(nextLevel);
 	}
 	// unknown domain
