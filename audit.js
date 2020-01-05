@@ -14,60 +14,24 @@ function buildDomainTree(domains) {
 	return tree;
 }
 
-function auditedDomain(event) {
-	const domain = (() => {
-		let path = '';
-		let current = event.currentTarget.parentNode;
-		while (current.dataset.domainPart) {
-			path += '.';
-			path += current.dataset.domainPart;
-			current = current.parentNode;
-		}
-		if (path !== '') {
-			path = path.substring(1);
-		}
-		return path;
-	})();
-
-	const auditResult = event.currentTarget.dataset.auditResult;
-	if (auditResult === 'up') {
-		event.currentTarget.parentNode.classList.remove('audit-result-down');
-		removeDomainFromSet(domain, 'domainBlacklist');
-		addDomainToSet(domain, 'domainWhitelist');
-		event.currentTarget.parentNode.classList.add('audit-result-up');
-	} else if (auditResult === 'down') {
-		event.currentTarget.parentNode.classList.remove('audit-result-up');
-		removeDomainFromSet(domain, 'domainWhitelist');
-		addDomainToSet(domain, 'domainBlacklist');
-		event.currentTarget.parentNode.classList.add('audit-result-down');
-	}
-}
+const nodeTemplate = document.getElementById('domain-tree-node');
+let nodeCounter = 0;
 
 function drawTree(tree, parent) {
 	for (const part in tree) {
 		if (tree.hasOwnProperty(part)) {
-			const partElement = document.createElement('div');
+			const partElement = document.importNode(nodeTemplate.content, true);
+			partElement.firstElementChild.dataset.domainPart = part;
+
+			++nodeCounter;
+			for (const input of partElement.querySelectorAll('input[type=radio]')) {
+				input.name = 'domain-part-' + nodeCounter;
+			}
+
+			partElement.querySelector('span').textContent = part;
+
+			drawTree(tree[part], partElement.firstElementChild);
 			parent.appendChild(partElement);
-
-			partElement.dataset.domainPart = part;
-
-			const buttonUp = document.createElement('button');
-			buttonUp.innerHTML = '&#x1F44D;';
-			partElement.appendChild(buttonUp);
-			buttonUp.addEventListener('click', auditedDomain);
-			buttonUp.dataset.auditResult = 'up';
-
-			const buttonDown = document.createElement('button');
-			buttonDown.innerHTML = '&#x1F44E;';
-			partElement.appendChild(buttonDown);
-			buttonDown.addEventListener('click', auditedDomain);
-			buttonDown.dataset.auditResult = 'down';
-
-			const partText = document.createElement('span');
-			partText.textContent = part;
-			partElement.appendChild(partText);
-
-			drawTree(tree[part], partElement);
 		}
 	}
 }
@@ -79,4 +43,58 @@ browser.storage.local.get('seenDomains').then(results => {
 	} else {
 		document.body.textContent = 'No domains recorded yet.';
 	}
+});
+
+document.getElementById('domain-tree').addEventListener('submit', function (event) {
+	event.preventDefault();
+
+	const tmpWhitelist = [];
+	const tmpBlacklist = [];
+
+	const radioButtons = event.currentTarget.querySelectorAll('input[type=radio]:checked');
+	for (const radioButton of radioButtons) {
+		const domainParts = [];
+		let currentPart = radioButton.parentNode;
+		while (currentPart.dataset.domainPart) {
+			domainParts.push(currentPart.dataset.domainPart);
+			currentPart = currentPart.parentNode;
+		}
+		const fullDomain = domainParts.join('.');
+
+		if (radioButton.value === 'red') {
+			tmpBlacklist.push(fullDomain);
+		} else if (radioButton.value === 'green') {
+			tmpWhitelist.push(fullDomain);
+		}
+	}
+
+	if (window.confirm('Are you sure to whitelist ' + tmpWhitelist.length + ' and blacklist ' + tmpBlacklist.length + ' domains?')) {
+		browser.storage.local.get('domainWhitelist').then(results => {
+			if (results.domainWhitelist) {
+				for (const domain of tmpWhitelist) {
+					if (!results.domainWhitelist.includes(domain)) {
+						results.domainWhitelist.push(domain);
+					}
+				}
+				browser.storage.local.set({
+					domainWhitelist: results.domainWhitelist
+				});
+			}
+		});
+
+		browser.storage.local.get('domainBlacklist').then(results => {
+			if (results.domainBlacklist) {
+				for (const domain of tmpBlacklist) {
+					if (!results.domainBlacklist.includes(domain)) {
+						results.domainBlacklist.push(domain);
+					}
+				}
+				browser.storage.local.set({
+					domainBlacklist: results.domainBlacklist
+				});
+			}
+		});
+	}
+
+	window.location.reload();
 });

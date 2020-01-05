@@ -7,39 +7,55 @@
 	<title>Audit domains</title>
 
 	<style>
+		*,
+		*:before,
+		*:after {
+			box-sizing: border-box;
+		}
+
 		#domain-tree div {
 			margin-left: 100px;
+			margin-top: 20px;
+			padding: 5px;
 		}
 
 		#domain-tree>div {
 			margin-left: 0;
 		}
 
-		#domain-tree button {
-			display: inline-block;
-			width: 50px;
-			height: 50px;
-			text-align: center;
-		}
-
 		#domain-tree span {
 			margin-left: 20px;
-			color: orange;
 		}
 
-		#domain-tree .audit-result-up>span {
-			color: green;
+		#domain-tree [value=red] {
+			outline: 5px solid red;
 		}
 
-		#domain-tree .audit-result-down>span {
-			color: red;
+		#domain-tree [value=amber] {
+			outline: 5px solid #FF7E00;
+		}
+
+		#domain-tree [value=green] {
+			outline: 5px solid green;
 		}
 
 	</style>
 </head>
 
 <body>
-	<div id="domain-tree"></div>
+	<template id="domain-tree-node">
+		<div>
+			<input type="radio" value="red">
+			<input type="radio" value="amber" checked>
+			<input type="radio" value="green">
+			<span>DOMAIN</span>
+		</div>
+	</template>
+
+	<form id="domain-tree">
+		<input type="submit" value="Save">
+		<br>
+	</form>
 
 	<script src="/utils.js"></script>
 	<script src="audit.js"></script>
