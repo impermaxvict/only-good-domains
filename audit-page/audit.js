@@ -40,10 +40,30 @@ function drawTree(tree, parent, parts) {
 	}
 }
 
+function loadPreviousState() {
+	browser.storage.local.get('domainWhitelist').then(results => {
+		for (const domain of results.domainWhitelist) {
+			const reverse = domain.split('.').reverse().join('.');
+			const selector = '[data-reverse-domain-name="' + reverse + '"] > [value=green]';
+			document.querySelector(selector).checked = true;
+		}
+	});
+
+	browser.storage.local.get('domainBlacklist').then(results => {
+		for (const domain of results.domainBlacklist) {
+			const reverse = domain.split('.').reverse().join('.');
+			const selector = '[data-reverse-domain-name="' + reverse + '"] > [value=red]';
+			document.querySelector(selector).checked = true;
+		}
+	});
+}
+
 browser.storage.local.get('seenDomains').then(results => {
 	if (results.seenDomains && results.seenDomains.length > 0) {
 		const domainTree = buildDomainTree(results.seenDomains);
 		drawTree(domainTree, document.getElementById('domain-tree'), []);
+
+		loadPreviousState();
 	} else {
 		document.body.textContent = 'No domains recorded yet.';
 	}
