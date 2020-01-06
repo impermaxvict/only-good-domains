@@ -55,7 +55,12 @@ browser.webRequest.onBeforeRequest.addListener(
 
 		// TODO: make this more efficient
 		if (requestDomain) {
-			addDomainToSet(requestDomain, 'seenDomains');
+			browser.storage.local.get('seenDomains').then(results => {
+				if (!results.seenDomains.includes(requestDomain)) {
+					results.seenDomains.push(requestDomain);
+					browser.storage.local.set(results);
+				}
+			});
 		}
 
 		if (isDomainBlocked(requestDomain)) {

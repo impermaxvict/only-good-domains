@@ -4,6 +4,20 @@ document.getElementById('btn-audit-domains').addEventListener('click', function 
 	});
 });
 
+function sortDomainList(domains) {
+	const result = [];
+	for (const domain of domains) {
+		if (domain) {
+			result.push(domain.split('.').reverse().join('.'));
+		}
+	}
+	result.sort();
+	for (let i = 0, l = result.length; i < l; ++i) {
+		result[i] = result[i].split('.').reverse().join('.');
+	}
+	return result;
+}
+
 document.getElementById('btn-download-whitelist').addEventListener('click', function (event) {
 	browser.storage.local.get('domainWhitelist').then(results => {
 		const link = document.createElement('a');
