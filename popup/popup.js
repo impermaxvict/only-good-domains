@@ -1,6 +1,6 @@
 document.getElementById('btn-audit-domains').addEventListener('click', function () {
 	browser.tabs.create({
-		url: "/audit.html"
+		url: "/audit-page/audit.html"
 	});
 });
 
