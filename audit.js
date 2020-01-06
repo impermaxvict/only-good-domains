@@ -17,11 +17,13 @@ function buildDomainTree(domains) {
 const nodeTemplate = document.getElementById('domain-tree-node');
 let nodeCounter = 0;
 
-function drawTree(tree, parent) {
+function drawTree(tree, parent, parts) {
 	for (const part in tree) {
 		if (tree.hasOwnProperty(part)) {
+			parts.push(part);
+
 			const partElement = document.importNode(nodeTemplate.content, true);
-			partElement.firstElementChild.dataset.domainPart = part;
+			partElement.firstElementChild.dataset.reverseDomainName = parts.join('.');
 
 			++nodeCounter;
 			for (const input of partElement.querySelectorAll('input[type=radio]')) {
@@ -30,8 +32,10 @@ function drawTree(tree, parent) {
 
 			partElement.querySelector('span').textContent = part;
 
-			drawTree(tree[part], partElement.firstElementChild);
+			drawTree(tree[part], partElement.firstElementChild, parts);
 			parent.appendChild(partElement);
+
+			parts.pop();
 		}
 	}
 }
@@ -39,7 +43,7 @@ function drawTree(tree, parent) {
 browser.storage.local.get('seenDomains').then(results => {
 	if (results.seenDomains && results.seenDomains.length > 0) {
 		const domainTree = buildDomainTree(results.seenDomains);
-		drawTree(domainTree, document.getElementById('domain-tree'));
+		drawTree(domainTree, document.getElementById('domain-tree'), []);
 	} else {
 		document.body.textContent = 'No domains recorded yet.';
 	}
@@ -53,22 +57,16 @@ document.getElementById('domain-tree').addEventListener('submit', function (even
 
 	const radioButtons = event.currentTarget.querySelectorAll('input[type=radio]:checked');
 	for (const radioButton of radioButtons) {
-		const domainParts = [];
-		let currentPart = radioButton.parentNode;
-		while (currentPart.dataset.domainPart) {
-			domainParts.push(currentPart.dataset.domainPart);
-			currentPart = currentPart.parentNode;
-		}
-		const fullDomain = domainParts.join('.');
-
+		const reverseDomainName = radioButton.parentNode.dataset.reverseDomainName;
+		const domainName = reverseDomainName.split('.').reverse().join('.');
 		if (radioButton.value === 'red') {
-			tmpBlacklist.push(fullDomain);
+			tmpBlacklist.push(domainName);
 		} else if (radioButton.value === 'green') {
-			tmpWhitelist.push(fullDomain);
+			tmpWhitelist.push(domainName);
 		}
 	}
 
-	if (window.confirm('Are you sure to whitelist ' + tmpWhitelist.length + ' and blacklist ' + tmpBlacklist.length + ' domains?')) {
+	if (tmpWhitelist) {
 		browser.storage.local.get('domainWhitelist').then(results => {
 			if (results.domainWhitelist) {
 				for (const domain of tmpWhitelist) {
@@ -81,7 +79,9 @@ document.getElementById('domain-tree').addEventListener('submit', function (even
 				});
 			}
 		});
+	}
 
+	if (tmpBlacklist) {
 		browser.storage.local.get('domainBlacklist').then(results => {
 			if (results.domainBlacklist) {
 				for (const domain of tmpBlacklist) {
