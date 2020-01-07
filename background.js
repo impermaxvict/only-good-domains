@@ -1,3 +1,5 @@
+'use strict';
+
 browser.runtime.onInstalled.addListener(() => {
 	browser.storage.local.set({
 		seenDomains: [],

@@ -1,3 +1,5 @@
+'use strict';
+
 function buildDomainTree(domains) {
 	const tree = {};
 	for (const domain of domains) {
