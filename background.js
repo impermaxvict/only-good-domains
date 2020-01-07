@@ -6,6 +6,14 @@ browser.runtime.onInstalled.addListener(() => {
 	});
 });
 
+let seenDomains = new Set();
+
+browser.storage.local.get('seenDomains').then(results => {
+	if (results.seenDomains) {
+		seenDomains = new Set(results.seenDomains);
+	}
+});
+
 let domainWhitelist = new Set();
 let domainBlacklist = new Set();
 
@@ -53,8 +61,10 @@ browser.webRequest.onBeforeRequest.addListener(
 	function (requestDetails) {
 		const requestDomain = new URL(requestDetails.url).hostname;
 
-		// TODO: make this more efficient
-		if (requestDomain) {
+		if (requestDomain && !seenDomains.has(requestDomain)) {
+			// If the domain was never seen before, add it to the set of seen domains.
+			seenDomains.add(requestDomain);
+
 			browser.storage.local.get('seenDomains').then(results => {
 				if (!results.seenDomains.includes(requestDomain)) {
 					results.seenDomains.push(requestDomain);
