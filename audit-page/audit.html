@@ -45,6 +45,26 @@
 </head>
 
 <body>
+	<div>
+		<p>On this page you can audit all recorded domains.</p>
+		<p>For each part of a domain you have three options (in the form of radio buttons):</p>
+		<ul>
+			<li>
+				<b style="background-color: red;">RED</b> = Blacklist this domain
+			</li>
+			<li>
+				<b style="background-color: #FF7E00;">AMBER</b> = Same action as for the parent domain
+				(This domain will not be added to any list!)
+			</li>
+			<li>
+				<b style="background-color: green;">GREEN</b> = Whitelist this domain
+			</li>
+		</ul>
+		<p>If you want to create a whitelist or blacklist for another program, you should judge every domain on this
+			page.</p>
+		<p>Do not forget to click the save button when done!</p>
+	</div>
+
 	<template id="domain-tree-node">
 		<div>
 			<input type="radio" value="red">

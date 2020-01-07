@@ -2,7 +2,7 @@
     "manifest_version": 2,
 
     "name": "Only Good Domains",
-    "description": "Analyze connections to unwanted domains and create blocklists.",
+    "description": "Create blocklists from domains collected while browsing the web.",
 
     "icons": {
         "16": "icon.png"
