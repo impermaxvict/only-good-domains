@@ -5,7 +5,9 @@
     "description": "Create blocklists from domains collected while browsing the web. Whitelist good, judge unknown, blacklist and block bad domains.",
 
     "icons": {
-        "16": "icon.png"
+        "16": "icons/icon-16.png",
+        "48": "icons/icon-48.png",
+        "128": "icons/icon-128.png"
     },
 
     "version": "1.0.0",
@@ -24,7 +26,9 @@
     },
 
     "browser_action": {
-        "default_icon": "icon.png",
+        "default_icon": {
+            "16": "icons/icon-16.png"
+        },
         "default_popup": "popup/popup.html"
     }
 }
