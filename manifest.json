@@ -8,7 +8,7 @@
         "16": "icon.png"
     },
 
-    "version": "0.0.0",
+    "version": "1.0.0",
 
     "permissions": [
         "<all_urls>",
