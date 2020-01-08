@@ -117,6 +117,4 @@ document.getElementById('domain-tree').addEventListener('submit', function (even
 			}
 		});
 	}
-
-	window.location.reload();
 });
