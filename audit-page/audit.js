@@ -71,13 +71,11 @@ browser.storage.local.get('seenDomains').then(results => {
 	}
 });
 
-document.getElementById('domain-tree').addEventListener('submit', function (event) {
-	event.preventDefault();
-
+document.getElementById('save-button').addEventListener('click', function (event) {
 	const tmpWhitelist = [];
 	const tmpBlacklist = [];
 
-	const radioButtons = event.currentTarget.querySelectorAll('input[type=radio]:checked');
+	const radioButtons = document.querySelectorAll('input[type=radio]:checked');
 	for (const radioButton of radioButtons) {
 		const reverseDomainName = radioButton.parentNode.dataset.reverseDomainName;
 		const domainName = reverseDomainName.split('.').reverse().join('.');
@@ -86,6 +84,10 @@ document.getElementById('domain-tree').addEventListener('submit', function (even
 		} else if (radioButton.value === 'green') {
 			tmpWhitelist.push(domainName);
 		}
+	}
+
+	if (!window.confirm('Do you want to whitelist ' + tmpWhitelist.length + ' and blacklist ' + tmpBlacklist.length + ' domains?')) {
+		return;
 	}
 
 	if (tmpWhitelist) {
