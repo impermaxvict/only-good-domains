@@ -2,6 +2,8 @@
 A Firefox add-on to create blocklists from domains collected while browsing the web.
 Whitelist good, judge unknown, blacklist and block bad domains.
 
+[![Download the add-on here](https://addons.cdn.mozilla.net/static/img/addons-buttons/AMO-button_1.png)](https://addons.mozilla.org/en-US/firefox/addon/only-good-domains/)
+
 ## Required permissions
 - Access your data for all websites (`<all_urls>`):
   - The add-on has to see all requests to all websites such that it can record the domains.
