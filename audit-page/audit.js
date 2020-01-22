@@ -72,17 +72,20 @@ browser.storage.local.get('seenDomains').then(results => {
 });
 
 document.getElementById('save-button').addEventListener('click', function (event) {
-	const tmpWhitelist = [];
-	const tmpBlacklist = [];
+	const tmpWhitelist = new Set();
+	const tmpBlacklist = new Set();
+	const tmpInherited = new Set();
 
 	const radioButtons = document.querySelectorAll('input[type=radio]:checked');
 	for (const radioButton of radioButtons) {
 		const reverseDomainName = radioButton.parentNode.dataset.reverseDomainName;
 		const domainName = reverseDomainName.split('.').reverse().join('.');
 		if (radioButton.value === 'red') {
-			tmpBlacklist.push(domainName);
+			tmpBlacklist.add(domainName);
 		} else if (radioButton.value === 'green') {
-			tmpWhitelist.push(domainName);
+			tmpWhitelist.add(domainName);
+		} else if (radioButton.value === 'amber') {
+			tmpInherited.add(domainName);
 		}
 	}
 
@@ -94,6 +97,11 @@ document.getElementById('save-button').addEventListener('click', function (event
 						results.domainWhitelist.push(domain);
 					}
 				}
+
+				results.domainWhitelist = results.domainWhitelist.filter(domain => {
+					return !(tmpInherited.has(domain) || tmpBlacklist.has(domain));
+				});
+
 				browser.storage.local.set({
 					domainWhitelist: results.domainWhitelist
 				});
@@ -109,6 +117,11 @@ document.getElementById('save-button').addEventListener('click', function (event
 						results.domainBlacklist.push(domain);
 					}
 				}
+
+				results.domainBlacklist = results.domainBlacklist.filter(domain => {
+					return !(tmpInherited.has(domain) || tmpWhitelist.has(domain));
+				});
+
 				browser.storage.local.set({
 					domainBlacklist: results.domainBlacklist
 				});
