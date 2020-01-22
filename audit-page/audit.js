@@ -86,10 +86,6 @@ document.getElementById('save-button').addEventListener('click', function (event
 		}
 	}
 
-	if (!window.confirm('Do you want to whitelist ' + tmpWhitelist.length + ' and blacklist ' + tmpBlacklist.length + ' domains?')) {
-		return;
-	}
-
 	if (tmpWhitelist) {
 		browser.storage.local.get('domainWhitelist').then(results => {
 			if (results.domainWhitelist) {
