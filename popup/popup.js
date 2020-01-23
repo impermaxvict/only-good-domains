@@ -6,6 +6,16 @@ document.getElementById('btn-audit-domains').addEventListener('click', function 
 	});
 });
 
+function downloadAsFile(filename, type, content) {
+	const link = document.createElement('a');
+	link.download = filename;
+	link.href = 'data:' + type + ',' + encodeURIComponent(content);
+	link.style.display = 'none';
+	document.body.appendChild(link);
+	link.click();
+	document.body.removeChild(link);
+}
+
 function sortDomainList(domains) {
 	const result = [];
 	for (const domain of domains) {
@@ -20,29 +30,17 @@ function sortDomainList(domains) {
 	return result;
 }
 
-document.getElementById('btn-download-whitelist').addEventListener('click', function (event) {
+document.getElementById('btn-download-whitelist').addEventListener('click', function () {
 	browser.storage.local.get('domainWhitelist').then(results => {
-		const link = document.createElement('a');
-		link.download = 'whitelist.txt';
 		const content = sortDomainList(results.domainWhitelist).join('\n') + '\n';
-		link.href = 'data:text/plain,' + encodeURIComponent(content);
-		link.style.display = 'none';
-		document.body.appendChild(link);
-		link.click();
-		document.body.removeChild(link);
+		downloadAsFile('whitelist.txt', 'text/plain', content);
 	});
 });
 
 document.getElementById('btn-download-blacklist').addEventListener('click', function () {
 	browser.storage.local.get('domainBlacklist').then(results => {
-		const link = document.createElement('a');
-		link.download = 'blacklist.txt';
 		const content = sortDomainList(results.domainBlacklist).join('\n') + '\n';
-		link.href = 'data:text/plain,' + encodeURIComponent(content);
-		link.style.display = 'none';
-		document.body.appendChild(link);
-		link.click();
-		document.body.removeChild(link);
+		downloadAsFile('blacklist.txt', 'text/plain', content);
 	});
 });
 
@@ -53,13 +51,6 @@ document.getElementById('btn-download-hosts-file').addEventListener('click', fun
 		for (const domain of sorted) {
 			content += '0.0.0.0\t' + domain + '\n';
 		}
-
-		const link = document.createElement('a');
-		link.download = 'hosts.txt';
-		link.href = 'data:text/plain,' + encodeURIComponent(content);
-		link.style.display = 'none';
-		document.body.appendChild(link);
-		link.click();
-		document.body.removeChild(link);
+		downloadAsFile('hosts.txt', 'text/plain', content);
 	});
 });
