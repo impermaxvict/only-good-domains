@@ -42,30 +42,24 @@ function drawTree(tree, parent, parts) {
 	}
 }
 
-function loadPreviousState() {
-	browser.storage.local.get('domainWhitelist').then(results => {
-		for (const domain of results.domainWhitelist) {
-			const reverse = domain.split('.').reverse().join('.');
-			const selector = '[data-reverse-domain-name="' + reverse + '"] > [value=green]';
-			document.querySelector(selector).checked = true;
-		}
-	});
-
-	browser.storage.local.get('domainBlacklist').then(results => {
-		for (const domain of results.domainBlacklist) {
-			const reverse = domain.split('.').reverse().join('.');
-			const selector = '[data-reverse-domain-name="' + reverse + '"] > [value=red]';
-			document.querySelector(selector).checked = true;
-		}
-	});
-}
-
-browser.storage.local.get('seenDomains').then(results => {
+browser.storage.local.get([
+	'domainWhitelist',
+	'domainBlacklist',
+	'seenDomains'
+]).then(results => {
 	if (results.seenDomains && results.seenDomains.length > 0) {
 		const domainTree = buildDomainTree(results.seenDomains);
 		drawTree(domainTree, document.getElementById('domain-tree'), []);
 
-		loadPreviousState();
+		for (const item of document.querySelectorAll('[data-reverse-domain-name]')) {
+			const domainName = item.dataset.reverseDomainName.split('.').reverse().join('.');
+
+			if (results.domainWhitelist.includes(domainName)) {
+				item.querySelector('[value=green]').checked = true;
+			} else if (results.domainBlacklist.includes(domainName)) {
+				item.querySelector('[value=red]').checked = true;
+			}
+		}
 	} else {
 		document.body.textContent = 'No domains recorded yet.';
 	}

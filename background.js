@@ -8,26 +8,25 @@ browser.runtime.onInstalled.addListener(() => {
 	});
 });
 
-let seenDomains = new Set();
-
-browser.storage.local.get('seenDomains').then(results => {
-	if (results.seenDomains) {
-		seenDomains = new Set(results.seenDomains);
-	}
-});
-
 let domainWhitelist = new Set();
 let domainBlacklist = new Set();
+let seenDomains = new Set();
 
-browser.storage.local.get('domainWhitelist').then(results => {
+browser.storage.local.get([
+	'domainWhitelist',
+	'domainBlacklist',
+	'seenDomains'
+]).then(results => {
 	if (results.domainWhitelist) {
 		domainWhitelist = new Set(results.domainWhitelist);
 	}
-});
 
-browser.storage.local.get('domainBlacklist').then(results => {
 	if (results.domainBlacklist) {
 		domainBlacklist = new Set(results.domainBlacklist);
+	}
+
+	if (results.seenDomains) {
+		seenDomains = new Set(results.seenDomains);
 	}
 });
 
