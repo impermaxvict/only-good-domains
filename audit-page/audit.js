@@ -83,6 +83,9 @@ document.getElementById('save-button').addEventListener('click', function (event
 		}
 	}
 
+	const counter = tmpWhitelist.size + tmpBlacklist.size + tmpInherited.size;
+	window.alert('Saving changes to ' + counter + ' domains.');
+
 	if (tmpWhitelist) {
 		browser.storage.local.get('domainWhitelist').then(results => {
 			if (results.domainWhitelist) {
