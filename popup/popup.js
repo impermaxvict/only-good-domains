@@ -30,27 +30,76 @@ function sortDomainList(domains) {
 	return result;
 }
 
+async function assembleLists() {
+	const results = await browser.storage.local.get([
+		'domainWhitelist',
+		'domainBlacklist',
+		'seenDomains'
+	]);
+
+	const whitelist = new Set(results.domainWhitelist);
+	const blacklist = new Set(results.domainBlacklist);
+
+	for (const domainName of results.seenDomains) {
+		if (!whitelist.has(domainName) && !blacklist.has(domainName)) {
+			let ancestorFound = false;
+			const parts = domainName.split('.');
+			const lower = [];
+			while (!ancestorFound && parts.length > 0) {
+				lower.push(parts.shift());
+				const upper = parts.join('.');
+				if (whitelist.has(upper) || blacklist.has(upper)) {
+					ancestorFound = true;
+				}
+			}
+
+			if (ancestorFound) {
+				const ancestorDomain = parts.join('.');
+				if (whitelist.has(ancestorDomain)) {
+					while (lower.length > 0) {
+						parts.unshift(lower.pop());
+						whitelist.add(parts.join('.'));
+					}
+				} else if (blacklist.has(ancestorDomain)) {
+					while (lower.length > 0) {
+						parts.unshift(lower.pop());
+						blacklist.add(parts.join('.'));
+					}
+				}
+			}
+		}
+	}
+
+	return {
+		whitelist: sortDomainList(whitelist),
+		blacklist: sortDomainList(blacklist)
+	};
+}
+
 document.getElementById('btn-download-whitelist').addEventListener('click', function () {
-	browser.storage.local.get('domainWhitelist').then(results => {
-		const content = sortDomainList(results.domainWhitelist).join('\n') + '\n';
-		downloadAsFile('whitelist.txt', 'text/plain', content);
+	assembleLists().then(({
+		whitelist
+	}) => {
+		downloadAsFile('whitelist.txt', 'text/plain', whitelist.join('\n') + '\n');
 	});
 });
 
 document.getElementById('btn-download-blacklist').addEventListener('click', function () {
-	browser.storage.local.get('domainBlacklist').then(results => {
-		const content = sortDomainList(results.domainBlacklist).join('\n') + '\n';
-		downloadAsFile('blacklist.txt', 'text/plain', content);
+	assembleLists().then(({
+		blacklist
+	}) => {
+		downloadAsFile('blacklist.txt', 'text/plain', blacklist.join('\n') + '\n');
 	});
 });
 
 document.getElementById('btn-download-hosts-file').addEventListener('click', function () {
-	browser.storage.local.get('domainBlacklist').then(results => {
-		const sorted = sortDomainList(results.domainBlacklist);
-		let content = '';
-		for (const domain of sorted) {
-			content += '0.0.0.0\t' + domain + '\n';
+	assembleLists().then(({
+		blacklist
+	}) => {
+		const lines = [];
+		for (const domain of blacklist) {
+			lines.push('0.0.0.0\t' + domain + '\n');
 		}
-		downloadAsFile('hosts.txt', 'text/plain', content);
+		downloadAsFile('hosts.txt', 'text/plain', lines.join(''));
 	});
 });
