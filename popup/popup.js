@@ -6,7 +6,7 @@ document.getElementById('btn-audit-domains').addEventListener('click', function 
 	});
 });
 
-function downloadAsFile(filename, type, content) {
+async function downloadAsFile(filename, type, content) {
 	const link = document.createElement('a');
 	link.download = filename;
 	link.href = 'data:' + type + ',' + encodeURIComponent(content);
@@ -17,17 +17,8 @@ function downloadAsFile(filename, type, content) {
 }
 
 function sortDomainList(domains) {
-	const result = [];
-	for (const domain of domains) {
-		if (domain) {
-			result.push(domain.split('.').reverse().join('.'));
-		}
-	}
-	result.sort();
-	for (let i = 0, l = result.length; i < l; ++i) {
-		result[i] = result[i].split('.').reverse().join('.');
-	}
-	return result;
+	const reversed = Array.from(domains).map(domain => domain.split('.').reverse());
+	return reversed.sort().map(domain => domain.reverse().join('.'));
 }
 
 async function assembleLists() {
