@@ -19,23 +19,37 @@ function buildDomainTree(domains) {
 const nodeTemplate = document.getElementById('domain-tree-node');
 let nodeCounter = 0;
 
-function drawTree(tree, parent, parts) {
+function drawTree(tree, parent, parts, whitelist, blacklist) {
 	for (const part in tree) {
 		if (tree.hasOwnProperty(part)) {
 			parts.push(part);
 
-			const partElement = document.importNode(nodeTemplate.content, true);
-			partElement.firstElementChild.dataset.reverseDomainName = parts.join('.');
+			const partNode = document.importNode(nodeTemplate.content, true);
+			const partElement = partNode.firstElementChild;
+			partElement.dataset.reverseDomainName = parts.join('.');
 
 			++nodeCounter;
-			for (const input of partElement.querySelectorAll('input[type=radio]')) {
-				input.name = 'domain-part-' + nodeCounter;
+			const btnRed = partElement.querySelector('[value=red]');
+			btnRed.name = 'domain-part-' + nodeCounter;
+			const btnAmber = partElement.querySelector('[value=amber]');
+			btnAmber.name = 'domain-part-' + nodeCounter;
+			const btnGreen = partElement.querySelector('[value=green]');
+			btnGreen.name = 'domain-part-' + nodeCounter;
+
+			let domainName = partElement.dataset.reverseDomainName;
+			domainName = domainName.split('.').reverse().join('.');
+			if (whitelist.has(domainName)) {
+				btnGreen.checked = true;
+			} else if (blacklist.has(domainName)) {
+				btnRed.checked = true;
+			} else {
+				btnAmber.checked = true;
 			}
 
 			partElement.querySelector('span').textContent = part;
 
-			drawTree(tree[part], partElement.firstElementChild, parts);
-			parent.appendChild(partElement);
+			drawTree(tree[part], partElement, parts, whitelist, blacklist);
+			parent.appendChild(partNode);
 
 			parts.pop();
 		}
@@ -46,20 +60,19 @@ browser.storage.local.get([
 	'domainWhitelist',
 	'domainBlacklist',
 	'seenDomains'
-]).then(results => {
-	if (results.seenDomains && results.seenDomains.length > 0) {
-		const domainTree = buildDomainTree(results.seenDomains);
-		drawTree(domainTree, document.getElementById('domain-tree'), []);
+]).then(({
+	domainWhitelist,
+	domainBlacklist,
+	seenDomains
+}) => {
+	if (seenDomains && seenDomains.length > 0) {
+		const domainTree = buildDomainTree(seenDomains);
+		const whitelist = new Set(domainWhitelist);
+		const blacklist = new Set(domainBlacklist);
 
-		for (const item of document.querySelectorAll('[data-reverse-domain-name]')) {
-			const domainName = item.dataset.reverseDomainName.split('.').reverse().join('.');
-
-			if (results.domainWhitelist.includes(domainName)) {
-				item.querySelector('[value=green]').checked = true;
-			} else if (results.domainBlacklist.includes(domainName)) {
-				item.querySelector('[value=red]').checked = true;
-			}
-		}
+		const domainTreeContainer = document.getElementById('domain-tree');
+		drawTree(domainTree, domainTreeContainer, [], whitelist, blacklist);
+		domainTreeContainer.style.display = 'block';
 	} else {
 		document.body.textContent = 'No domains recorded yet.';
 	}
