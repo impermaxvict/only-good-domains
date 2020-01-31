@@ -42,6 +42,35 @@ browser.storage.onChanged.addListener(function (changes, area) {
 	}
 });
 
+const unsavedDomainNames = new Set();
+let updateTimer;
+
+async function recordDomainName(domainName) {
+	if (!seenDomains.has(domainName)) {
+		seenDomains.add(domainName);
+
+		unsavedDomainNames.add(domainName);
+
+		if (!updateTimer) {
+			updateTimer = setTimeout(function () {
+				browser.storage.local.get('seenDomains').then(results => {
+					for (const unsavedDomainName of unsavedDomainNames) {
+						if (!results.seenDomains.includes(unsavedDomainName)) {
+							results.seenDomains.push(unsavedDomainName);
+						}
+					}
+					browser.storage.local.set(results);
+
+					unsavedDomainNames.clear();
+				});
+
+				clearTimeout(updateTimer);
+				updateTimer = null;
+			}, 3000);
+		}
+	}
+}
+
 function isDomainBlocked(domain) {
 	if (domainWhitelist.has(domain)) {
 		// exact in whitelist
@@ -61,24 +90,14 @@ function isDomainBlocked(domain) {
 browser.webRequest.onBeforeRequest.addListener(
 	function (requestDetails) {
 		const requestDomain = new URL(requestDetails.url).hostname;
+		if (requestDomain) {
+			recordDomainName(requestDomain);
 
-		if (requestDomain && !seenDomains.has(requestDomain)) {
-			// If the domain was never seen before, add it to the set of seen domains.
-			seenDomains.add(requestDomain);
-
-			browser.storage.local.get('seenDomains').then(results => {
-				if (!results.seenDomains.includes(requestDomain)) {
-					results.seenDomains.push(requestDomain);
-					browser.storage.local.set(results);
-				}
-			});
-		}
-
-		if (isDomainBlocked(requestDomain)) {
-			console.log("Blocking", requestDomain);
-			return {
-				'cancel': true
-			};
+			if (isDomainBlocked(requestDomain)) {
+				return {
+					'cancel': true
+				};
+			}
 		}
 	}, {
 		urls: ["<all_urls>"]
