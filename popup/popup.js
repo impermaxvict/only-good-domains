@@ -82,15 +82,3 @@ document.getElementById('btn-download-blacklist').addEventListener('click', func
 		downloadAsFile('blacklist.txt', 'text/plain', blacklist.join('\n') + '\n');
 	});
 });
-
-document.getElementById('btn-download-hosts-file').addEventListener('click', function () {
-	assembleLists().then(({
-		blacklist
-	}) => {
-		const lines = [];
-		for (const domain of blacklist) {
-			lines.push('0.0.0.0\t' + domain + '\n');
-		}
-		downloadAsFile('hosts.txt', 'text/plain', lines.join(''));
-	});
-});
