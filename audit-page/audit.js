@@ -48,8 +48,20 @@ function drawTree(tree, parent, parts, whitelist, blacklist) {
 
 			partElement.querySelector('span').textContent = part;
 
-			drawTree(tree[part], partElement, parts, whitelist, blacklist);
 			parent.appendChild(partNode);
+
+			if (Object.keys(tree[part]).length > 0) {
+				const subdomainListElement = document.createElement('ul');
+				subdomainListElement.classList.add('subdomains');
+				partElement.appendChild(subdomainListElement);
+
+				drawTree(tree[part], subdomainListElement, parts, whitelist, blacklist);
+
+				partElement.classList.add('subdomain-list');
+				partElement.querySelector('span').addEventListener('click', function () {
+					this.parentElement.classList.toggle('expanded');
+				});
+			}
 
 			parts.pop();
 		}

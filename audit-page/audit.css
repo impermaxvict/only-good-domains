@@ -1,0 +1,60 @@
+*,
+*:before,
+*:after {
+	box-sizing: border-box;
+}
+
+#domain-tree {
+	display: none;
+	margin: 0;
+	padding: 0;
+}
+
+#domain-tree,
+#domain-tree ul {
+	list-style-type: none;
+}
+
+#domain-tree li {
+	padding: 15px;
+	margin-left: 40px;
+}
+
+#domain-tree span {
+	margin-left: 20px;
+	font-family: monospace;
+	font-size: 20px;
+}
+
+#domain-tree [value=red] {
+	outline: 5px solid red;
+}
+
+#domain-tree [value=amber] {
+	outline: 5px solid #FF7E00;
+}
+
+#domain-tree [value=green] {
+	outline: 5px solid green;
+}
+
+#domain-tree .subdomains {
+	display: none;
+}
+
+#domain-tree .subdomain-list>span::before {
+	cursor: pointer;
+	margin-right: 10px;
+}
+
+#domain-tree .subdomain-list:not(.expanded)>span::before {
+	content: '\25B6';
+}
+
+#domain-tree .subdomain-list.expanded>span::before {
+	content: '\25BC';
+}
+
+#domain-tree .subdomain-list.expanded>.subdomains {
+	display: block;
+}

@@ -6,46 +6,7 @@
 
 	<title>Audit domains</title>
 
-	<style>
-		*,
-		*:before,
-		*:after {
-			box-sizing: border-box;
-		}
-
-		#domain-tree {
-			display: none;
-		}
-
-		#domain-tree div {
-			margin-left: 100px;
-			margin-top: 20px;
-			padding: 5px;
-		}
-
-		#domain-tree>div {
-			margin-left: 0;
-		}
-
-		#domain-tree span {
-			margin-left: 20px;
-			font-family: monospace;
-			font-size: 20px;
-		}
-
-		#domain-tree [value=red] {
-			outline: 5px solid red;
-		}
-
-		#domain-tree [value=amber] {
-			outline: 5px solid #FF7E00;
-		}
-
-		#domain-tree [value=green] {
-			outline: 5px solid green;
-		}
-
-	</style>
+	<link rel="stylesheet" href="audit.css">
 </head>
 
 <body>
@@ -65,6 +26,7 @@
 				<b style="background-color: green;">GREEN</b> = Whitelist this domain
 			</li>
 		</ul>
+		<p>Click the &#x25B6; buttons to show all recorded subdomains for a given domain.</p>
 		<p>If you want to create a whitelist or blacklist for another program, you should judge every domain on this
 			page.</p>
 		<p>Do not forget to click the save button when done!</p>
@@ -73,15 +35,15 @@
 	</div>
 
 	<template id="domain-tree-node">
-		<div>
+		<li>
 			<input type="radio" value="red">
 			<input type="radio" value="amber">
 			<input type="radio" value="green">
 			<span></span>
-		</div>
+		</li>
 	</template>
 
-	<form id="domain-tree"></form>
+	<ul id="domain-tree"></ul>
 
 	<script src="audit.js"></script>
 </body>
