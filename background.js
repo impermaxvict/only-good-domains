@@ -1,11 +1,27 @@
 'use strict';
 
-browser.runtime.onInstalled.addListener(() => {
-	browser.storage.local.set({
-		seenDomains: [],
-		domainWhitelist: [],
-		domainBlacklist: []
-	});
+// Initialize local storage
+browser.storage.local.get().then(results => {
+	let changed = false;
+
+	if (!results.domainWhitelist) {
+		results.domainWhitelist = [];
+		changed = true;
+	}
+
+	if (!results.domainBlacklist) {
+		results.domainBlacklist = [];
+		changed = true;
+	}
+
+	if (!results.seenDomains) {
+		results.seenDomains = [];
+		changed = true;
+	}
+
+	if (changed) {
+		browser.storage.local.set(results);
+	}
 });
 
 let domainWhitelist = new Set();
