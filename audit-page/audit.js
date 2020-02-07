@@ -28,13 +28,13 @@ function drawTree(tree, parent, parts, whitelist, blacklist) {
 			const partElement = partNode.firstElementChild;
 			partElement.dataset.reverseDomainName = parts.join('.');
 
-			++nodeCounter;
+			const nodeName = 'domain-part-' + (++nodeCounter);
 			const btnRed = partElement.querySelector('[value=red]');
-			btnRed.name = 'domain-part-' + nodeCounter;
+			btnRed.name = nodeName;
 			const btnAmber = partElement.querySelector('[value=amber]');
-			btnAmber.name = 'domain-part-' + nodeCounter;
+			btnAmber.name = nodeName;
 			const btnGreen = partElement.querySelector('[value=green]');
-			btnGreen.name = 'domain-part-' + nodeCounter;
+			btnGreen.name = nodeName;
 
 			let domainName = partElement.dataset.reverseDomainName;
 			domainName = domainName.split('.').reverse().join('.');
@@ -109,45 +109,40 @@ document.getElementById('save-button').addEventListener('click', function (event
 	}
 
 	const counter = tmpWhitelist.size + tmpBlacklist.size + tmpInherited.size;
-	window.alert('Saving changes to ' + counter + ' domains.');
-
-	if (tmpWhitelist) {
-		browser.storage.local.get('domainWhitelist').then(results => {
-			if (results.domainWhitelist) {
-				for (const domain of tmpWhitelist) {
-					if (!results.domainWhitelist.includes(domain)) {
-						results.domainWhitelist.push(domain);
-					}
-				}
-
-				results.domainWhitelist = results.domainWhitelist.filter(domain => {
-					return !(tmpInherited.has(domain) || tmpBlacklist.has(domain));
-				});
-
-				browser.storage.local.set({
-					domainWhitelist: results.domainWhitelist
-				});
-			}
-		});
+	if (!window.confirm('Saving changes to ' + counter + ' domains.')) {
+		return;
 	}
 
-	if (tmpBlacklist) {
-		browser.storage.local.get('domainBlacklist').then(results => {
-			if (results.domainBlacklist) {
-				for (const domain of tmpBlacklist) {
-					if (!results.domainBlacklist.includes(domain)) {
-						results.domainBlacklist.push(domain);
-					}
-				}
-
-				results.domainBlacklist = results.domainBlacklist.filter(domain => {
-					return !(tmpInherited.has(domain) || tmpWhitelist.has(domain));
-				});
-
-				browser.storage.local.set({
-					domainBlacklist: results.domainBlacklist
-				});
+	browser.storage.local.get([
+		'domainWhitelist',
+		'domainBlacklist'
+	]).then(({
+		domainWhitelist,
+		domainBlacklist
+	}) => {
+		for (const domain of tmpWhitelist) {
+			if (!domainWhitelist.includes(domain)) {
+				domainWhitelist.push(domain);
 			}
+		}
+
+		domainWhitelist = domainWhitelist.filter(domain => {
+			return !(tmpInherited.has(domain) || tmpBlacklist.has(domain));
 		});
-	}
+
+		for (const domain of tmpBlacklist) {
+			if (!domainBlacklist.includes(domain)) {
+				domainBlacklist.push(domain);
+			}
+		}
+
+		domainBlacklist = domainBlacklist.filter(domain => {
+			return !(tmpInherited.has(domain) || tmpWhitelist.has(domain));
+		});
+
+		browser.storage.local.set({
+			domainWhitelist,
+			domainBlacklist
+		});
+	});
 });
