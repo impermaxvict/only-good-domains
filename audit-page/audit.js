@@ -68,6 +68,11 @@ function drawTree(tree, parent, parts, whitelist, blacklist) {
 	}
 }
 
+function sortDomainNameList(domains) {
+	const reversed = Array.from(domains).map(domain => domain.split('.').reverse());
+	return reversed.sort().map(domain => domain.reverse().join('.'));
+}
+
 browser.storage.local.get([
 	'domainWhitelist',
 	'domainBlacklist',
@@ -78,6 +83,7 @@ browser.storage.local.get([
 	seenDomains
 }) => {
 	if (seenDomains && seenDomains.length > 0) {
+		seenDomains = sortDomainNameList(seenDomains);
 		const domainTree = buildDomainTree(seenDomains);
 		const whitelist = new Set(domainWhitelist);
 		const blacklist = new Set(domainBlacklist);
