@@ -20,6 +20,10 @@
 	margin-left: 40px;
 }
 
+#domain-tree>li {
+	margin-left: 0;
+}
+
 #domain-tree span {
 	margin-left: 20px;
 	font-family: monospace;
