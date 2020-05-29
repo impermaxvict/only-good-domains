@@ -72,11 +72,6 @@ function drawTree(tree, parent, parts, whitelist, blacklist) {
 	}
 }
 
-function sortDomainNameList(domains) {
-	const reversed = Array.from(domains).map(domain => domain.split('.').reverse());
-	return reversed.sort().map(domain => domain.reverse().join('.'));
-}
-
 browser.storage.local.get([
 	'domainWhitelist',
 	'domainBlacklist',

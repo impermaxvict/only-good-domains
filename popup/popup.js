@@ -16,11 +16,6 @@ async function downloadAsFile(filename, type, content) {
 	document.body.removeChild(link);
 }
 
-function sortDomainList(domains) {
-	const reversed = Array.from(domains).map(domain => domain.split('.').reverse());
-	return reversed.sort().map(domain => domain.reverse().join('.'));
-}
-
 async function assembleLists() {
 	const results = await browser.storage.local.get([
 		'domainWhitelist',
@@ -62,8 +57,8 @@ async function assembleLists() {
 	}
 
 	return {
-		whitelist: sortDomainList(whitelist),
-		blacklist: sortDomainList(blacklist)
+		whitelist: sortDomainNameList(whitelist),
+		blacklist: sortDomainNameList(blacklist)
 	};
 }
 
