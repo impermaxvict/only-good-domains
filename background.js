@@ -106,7 +106,7 @@ function isDomainBlocked(domain) {
 browser.webRequest.onBeforeRequest.addListener(
 	function (requestDetails) {
 		const requestDomain = new URL(requestDetails.url).hostname;
-		if (requestDomain) {
+		if (requestDomain && !isIPv4Address(requestDomain)) {
 			recordDomainName(requestDomain);
 
 			if (isDomainBlocked(requestDomain)) {

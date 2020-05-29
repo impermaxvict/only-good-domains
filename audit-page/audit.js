@@ -3,6 +3,10 @@
 function buildDomainTree(domains) {
 	const tree = {};
 	for (const domain of domains) {
+		if (isIPv4Address(domain)) {
+			continue;
+		}
+
 		const parts = domain.split('.');
 		let parent = tree;
 		while (parts.length > 0) {
