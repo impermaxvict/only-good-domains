@@ -62,6 +62,12 @@ const unsavedDomainNames = new Set();
 let updateTimer;
 
 async function recordDomainName(domainName) {
+	if (isIPv4Address(domainName)) {
+		return;
+	}
+
+	// TODO: Ignore IPv6 addresses
+
 	if (!seenDomains.has(domainName)) {
 		seenDomains.add(domainName);
 
